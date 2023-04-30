@@ -31,7 +31,7 @@
                         echo "<script>document.location.href='new.php?error=Käyttäjänimi+on+jo+käytössä'</script>";
                     }   else {
                         function idexists($newId) {
-                            $database = file_get_contents("./data/users.json");
+                            $database = file_get_contents("./../data/users.json");
                             $database = json_decode($database);
                             foreach ($database->users as $key) {
                                 if ($key[1] == $newId) {
@@ -55,11 +55,11 @@
                                 $index++;
                             }
                         }
-                        $database = file_get_contents("./data/users.json");
+                        $database = file_get_contents("./../data/users.json");
                         $database = json_decode($database);
                         array_push($database->users, [$user, $id, $password, "Main"]);
                         $database = json_encode($database);
-                        file_put_contents("./data/database.json", $database);
+                        file_put_contents("./../data/database.json", $database);
                         echo "
                         <h1>Käytäjä luotu</h1>
                         <script>localStorage.setItem('userName', JSON.stringify(['$user', '$id', '$password']))</script>
@@ -68,7 +68,7 @@
                 }
             }   else {
                 if (nameexists()) {
-                    $database = file_get_contents("./data/users.json");
+                    $database = file_get_contents("./../data/users.json");
                     $database = json_decode($database);
                     foreach ($database->users as $key) {
                         if ($key[0] == $user) {

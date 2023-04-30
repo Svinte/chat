@@ -24,7 +24,7 @@ if (isset($_POST["name"])) {
                     if ($password == $key[2]) {
                         $database->users[$index][0] = $name;
                         $database = json_encode($database);
-                        file_put_contents("./data/users.json", $database);
+                        file_put_contents("./../data/users.json", $database);
                         $changed = "Käyttäjänimi vaihdettiin onnistuneesti";
                         echo "<script>localStorage.setItem('userName', JSON.stringify(['$name', '$key[1]', '$key[2]']))</script>";
                         break;

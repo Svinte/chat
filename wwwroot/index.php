@@ -15,7 +15,7 @@
     <div id="chat">
         <?php
             $date = date("Y-m-d-h-i", time());
-            include_once("./data/get.php");
+            include_once("./../data/get.php");
             $deldata = getData("deleted", "deleted");
             $delIndex = count($deldata);
             echo "<script>var lastUser = ['','$date'];var delIndex = $delIndex;</script>";
@@ -79,7 +79,7 @@
                     }
                 }
             }
-            request.open("POST", "./tools/messages/get.php", true);
+            request.open("POST", "./../tools/messages/get.php", true);
             request.setRequestHeader("Content-type", "application/json");
             request.send(JSON.stringify({
                 "index": index,
@@ -104,7 +104,7 @@
                 aux.style.left = cursor[1]+"px";
                 deleteMs.onclick = function () {
                     const request = new XMLHttpRequest();
-                    request.open("POST", "./tools/messages/delete.php");
+                    request.open("POST", "./../tools/messages/delete.php");
                     request.setRequestHeader("Content-type", "application/json");
                     request.send(JSON.stringify({
                         Id: JSON.parse(localStorage.getItem("userName"))[1],
@@ -142,7 +142,7 @@
         document.getElementById("form").onsubmit = function (e) {
             e.preventDefault();
             const request = new XMLHttpRequest();
-            request.open("POST", "./tools/messages/new.php");
+            request.open("POST", "./../tools/messages/new.php");
             request.setRequestHeader("Content-type", "application/json");
             request.send(JSON.stringify({
                 Id: JSON.parse(localStorage.getItem("userName"))[1],
