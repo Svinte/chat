@@ -1,0 +1,32 @@
+{
+    "fi-FI": {
+        "Iuser": "Virheellinen käyttäjätunnus, kirjaudu sisään uudelleen korjataksesi ongelman.",
+        "Ipassword": "Väärä salasana, kirjaudu sisään uudelleen korjataksesi ongelman.",
+        "IrequestType": "Tuntematon pyynnön tyyppi",
+        "Mdata": "Järjestelmä ei lähettänyt tarpeellisia tietoja, tai ne ovat puutteelliset.",
+        "Elogin": "Tuntematon virhe kirjautuessa sisään, sisäänkirjautuminen uudelleen voi korjata ongelman.",
+        "Cname": "Valitettavasti tämä nimi on jo käytössä, valitse uusi nimi.",
+        "Lpassword": "Salasanan pituus tulee olla 4-30 merkkiä",
+        "Lname": "Käyttäjänimen pituus tulee olla 4-30 merkkiä",
+        "Ipremission": "Valitettavasti sinulla ei ole oikeuksia tähän toimintoon",
+        "Cemail": "Kaikki sujui onnistuneesti, ja loimme sinulle mallin tunnuksistasi. Ottaaksesi tunnukset käyttöön sinun tulee vahvistaa sähköpostisi viestin kautta, jonka lähetimme sähköpostiisi. Muulloin tunnukset poistetaan klo 3.30 Suomen aikaan.",
+        "EsingInHeader": "Viimeistele tilin luonti",
+        "EsingInBody": "Hei! Tälle tilille ollaan luomassa tunnuksia. Voit viimeistellä tunnukset viestin lopussa olevasta linkistä. Jos et ollut itse tunnusten luonnin takana, ÄLÄ PAINA LINKKIÄ. Jos linkkiä ei paineta tunnuksia ei oteta käyttöön, vaan ne poistetaan.",
+        "NfoundRoom": "Tämä huone ei ole olemassa tai sinulla ei ole pääsyä siihen"
+    },
+    "en-EN": {
+        "Iuser": "Invalid userdata. Log in again to fix problem.",
+        "Ipassword": "Wrong password. Please login again to fix problem",
+        "IrequestType": "Unknown request type",
+        "Mdata": "The system did not send the necessary information, or it is incomplete.",
+        "Elogin": "Unknown error while logging in, logging in again may fix the problem.",
+        "Cname": "Unfortunately, this name is already in use, please enter a new name.",
+        "Lpassword": "The length of the password must be 4-30 characters",
+        "Lname": "The length of the username must be 4-30 characters",
+        "Ipremission": "Sorry, you don't have rights to this functionSorry, you don't have rights to this function",
+        "Cemail": "Everything went successfully and we created a template of your credentials for you. To enable the credentials, you must confirm your e-mail via the message we sent to your e-mail. At other times, the passwords are deleted at 3:30 a.m. Finnish time.Everything went successfully and we created a template of your credentials for you. To enable the credentials, you must confirm your e-mail via the message we sent to your e-mail. At other times, the prototype are deleted at 3:30 a.m. Finnish time.",
+        "EsingInHeader": "Finish account creation",
+        "EsingInBody": "Hey! IDs are being created for this account. You can complete the credentials from the link at the end of the message. If you were not behind the creation of the IDs yourself, DO NOT PRESS THE LINK. If the link is not clicked, the credentials will not be activated, but will be deleted.",
+        "NfoundRoom": "This room does not exist or you cannot see it"
+    }
+}

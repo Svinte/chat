@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create user</title>
+</head>
+<body>
+    <button onclick="newUs()"></button>
+    <h1 id="id"></h1>
+</body>
+</html>
+<script>
+    function newUs() {
+        var id = "_";
+        var index = 0;
+        const symbols = [
+            "a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","0","1",
+            "2","3","4","5","6","7","8","9"
+        ]
+        do {
+            var random = Math.floor(Math.random()*symbols.length);
+            if (Math.floor(Math.random()*2) == 1) {
+                id+=symbols[random].toUpperCase();
+            } else {
+                id+=symbols[random];
+            }
+            index++;
+        } while (index < 12);
+        document.getElementById("id").innerHTML = id;
+    }
+    localStorage.setItem("userName",JSON.stringify(["AmogusMan","_7995q8ju01b", "Amogus", "Main"]))
+</script>

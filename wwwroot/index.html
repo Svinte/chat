@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>chat</title>
+    <link rel="shortcut icon" href="https://betonikasa.netlify.app/gallery/favicon.ico" type="image/x-icon">
+    <meta name="description" content="Chat main page">
+</head>
+<body>
+    <form autocomplete="off" id="form">
+        <input type='text' name='value' placeholder='message' id="inp">
+        <button type='submit' id="send">Send</button>
+    </form>
+    <div id="chat">
+    </div>
+    <button id="Userprofile"></button>
+    <div id="profile"></div>
+    <script async>
+    if (localStorage.getItem("user") !== null) {
+        document.getElementById("inp").focus();
+        window.scrollTo(0, document.body.scrollHeight);
+    } else {
+        window.location.href="auth.html";
+    }
+    if (sessionStorage.getItem("room") == null) {
+        var room = "*";    
+    }   else {
+        var room = JSON.parse(sessionStorage.getItem("room"))[0];
+    }
+    var date = new Date;
+    var lastUser = ["",date];
+    var role;
+    if (sessionStorage.getItem("room") == null) {
+        document.title = "Chat | Home";
+    }   else {
+        document.title = "Chat | "+JSON.parse(sessionStorage.getItem("room"))[1];
+    }
+    settings();
+    function popup(text) {
+        const popup = document.createElement("div");
+        popup.id = "popup";
+        document.body.appendChild(popup);
+        const h1 = document.createElement("h1");
+        h1.innerText = text;
+        popup.appendChild(h1);
+        const ok = document.createElement("button");
+        ok.innerText = "Ok";
+        popup.appendChild(ok);
+        ok.onclick = function okClick() {
+            document.body.removeChild(popup);
+            ok.removeEventListener("click", okClick);
+        }
+    }
+    function settings(){
+        function rooms(newRooms) {
+            var selector = document.getElementById("selector");
+            newRooms.forEach(element => {
+                if (!document.getElementById(element["id"])) {
+                    const h1 = document.createElement("h1");
+                    h1.id=element["id"];
+                    h1.innerText=element["name"];
+                    selector.appendChild(h1);
+                }
+            });
+        }
+        const request = new XMLHttpRequest();
+        request.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                if (JSON.parse(this.responseText)["error"] == "none") {
+                    sessionStorage.setItem("settings", JSON.stringify(JSON.parse(this.responseText)["response"]));
+                    sessionStorage.setItem("delIndex", JSON.stringify(JSON.parse(this.responseText)["delIndex"]));
+                    rooms(JSON.parse(this.responseText)["rooms"]);
+                    main();
+                }   else {
+                    popup(JSON.parse(this.responseText)["error"] || "Server side error");
+                }
+            }
+        }
+        request.open("POST", "request/settings.php");
+        request.setRequestHeader("Content-type", "application/json");
+        request.send(JSON.stringify({
+            "id": JSON.parse(localStorage.getItem("user"))[1],
+            "password": JSON.parse(localStorage.getItem("user"))[2],
+            "lang": navigator.language || navigator.userLanguage,
+            "type": "get",
+            "room": room
+        }))
+    }
+    function main() {
+        var settings = JSON.parse(sessionStorage.getItem("settings"));
+        var index = 0;
+        document.getElementById("Userprofile").onclick = function () {
+            document.location.href="profile.html";
+        }
+        document.getElementById("Userprofile").style.backgroundImage = "url("+localStorage.getItem("profile")+")";
+        function update() {
+            const request = new XMLHttpRequest();
+            request.onreadystatechange = function (e) {
+                if (this.readyState == 4 && this.status == 200) {
+                    if (this.responseText !== "") {
+                        const response = JSON.parse(this.responseText);
+                        if (response["error"] == "none") {
+                            const add = response["add"];
+                            if (response["remove"].length !== 0) {
+                                window.location.reload();
+                            }
+                            if (!moderator) {
+                                if (response["role"] == "Admin") {
+                                    role = response["role"];
+                                }
+                            }
+                            const chat = document.getElementById("chat");
+                            if (window.scrollY+window.innerHeight > document.body.scrollHeight) {
+                                var scroll = true;
+                            }   else {
+                                var scroll = false;
+                            }
+                            add.forEach(element => {
+                                var date = new Date(element["Date"]);
+                                const div = document.createElement("div");
+                                div.className = JSON.stringify([index, element["Id"]]);
+                                const item = document.createElement("h1");
+                                item.innerText=element["Id"];
+                                const item2 = document.createElement("h2");
+                                item2.innerText=date.getDate()+"."+(date.getMonth()+1)+"."+date.getFullYear()+":"+date.getHours()+"."+date.getMinutes();
+                                const item4 = document.createElement("img");
+                                item4.className = "avatar";
+                                item4.src = element["Profile"];
+                                var type = "txt";
+                                try {
+                                    const url = new URL(element["Value"]);
+                                    if (element["Value"].toLowerCase().match(/\.(jpeg|jpg|gif|png|webp)$/)) {
+                                        var item3 = document.createElement("img");
+                                        item3.src=url;
+                                        item3.className="img";
+                                        item3.alt=element["Value"];
+                                        type = "img";
+                                        item3.onload = function() {
+                                            if (scroll == true) {
+                                                window.scrollTo(0, document.body.scrollHeight);
+                                            }
+                                        }
+                                    }   else {
+                                        type = "link";
+                                    }
+                                } catch (error) {}
+                                if (type == "txt") {
+                                    var item3 = document.createElement("h3"); 
+                                    item3.innerText=element["Value"];
+                                }   else if (type == "link") {
+                                    var item3 = document.createElement("a");
+                                    item3.innerText=element["Value"];
+                                    item3.href=element["Value"];
+                                    item3.target="_blank";
+                                }
+                                if (lastUser[0] !== element["Id"]) {
+                                    chat.appendChild(item4);
+                                    item.style.color=element["Color"];
+                                    div.appendChild(item);
+                                }
+                                div.appendChild(item2);
+                                div.appendChild(item3);
+                                chat.appendChild(div);
+                                lastUser = [element["Id"], element["Date"]];
+                                index++;
+                            });
+                            setTimeout(update, settings["update"]);
+                            if (scroll == true) {
+                                window.scrollTo(0, document.body.scrollHeight);
+                            }
+                        }   else {
+                            popup(response["error"]);
+                        }
+                    }
+                }
+            }
+            request.open("POST", "request/get.php", true);
+            request.setRequestHeader("Content-type", "application/json");
+            request.send(JSON.stringify({
+                "index": index,
+                "delIndex": sessionStorage.getItem("delIndex"),
+                "room": room,
+                "lang": JSON.parse(sessionStorage.getItem("settings"))["lang"],
+                "id": JSON.parse(localStorage.getItem("user"))[1],
+                "password": JSON.parse(localStorage.getItem("user"))[2]
+            }));
+        }
+        update();
+        const aux = document.createElement("div");
+        aux.id="aux";
+        window.onauxclick = function(e) {
+            aux.innerHTML="";
+            if (e.target.parentNode.parentNode == chat || e.target.parentNode == chat) {
+                if (e.target.parentNode == chat) {
+                    var target = e.target;
+                }   else {
+                    var target = e.target.parentNode;
+                }
+                const aux_text = document.createElement("h4");
+                aux.appendChild(aux_text);
+                const deleteMs = document.createElement("h4");
+                deleteMs.innerText="Delete";
+                aux.appendChild(deleteMs);
+                const e_Index = JSON.parse(target.className)[0];
+                const e_Id = JSON.parse(target.className)[1];
+                document.body.appendChild(aux);
+                var top = 0;
+                var left = 0;
+                aux_text.innerText="Report "+e_Id;
+                if (cursor[0]+aux.clientHeight > window.innerHeight) {
+                    top = aux.clientHeight;
+                }
+                if (cursor[1]+aux.clientWidth > window.innerWidth) {
+                    left = aux.clientWidth;
+                }
+                aux.style.top = cursor[0]-top+"px";
+                aux.style.left = cursor[1]-left+"px";
+                deleteMs.onclick = function () {
+                    const request = new XMLHttpRequest();
+                    request.onreadystatechange = function () {
+                        if (this.readyState == 4 && this.status == 200) {
+                            if (this.responseText !== "") {
+                                console.log(this.responseText);
+                                const response = JSON.parse(this.responseText);
+                                if (response["error"] !== "none") {
+                                    popup(response["error"]);
+                                }
+                            }
+                        }
+                    }
+                    request.open("POST", "request/delete.php");
+                    request.setRequestHeader("Content-type", "application/json");
+                    request.send(JSON.stringify({
+                        "Id": JSON.parse(localStorage.getItem("user"))[1],
+                        "password": JSON.parse(localStorage.getItem("user"))[2],
+                        "index": JSON.parse(target.className)[0],
+                        "room": room,
+                        "lang": JSON.parse(sessionStorage.getItem("settings"))["lang"]
+                    }))
+                }
+                if (e_Id == JSON.parse(localStorage.getItem("user"))[0] || moderator) {
+                    deleteMs.style.display="block";
+                }   else {
+                    deleteMs.style.display="none";
+                }
+            }   else {
+                if (document.body.contains(aux)) {
+                    document.body.removeChild(aux);
+                }
+            }
+        }
+        document.onclick = function (e) {
+            if (document.getElementById("aux")) {
+                if (e.target !== aux) {
+                    document.body.removeChild(aux);
+                    document.onclick = function () {};
+                    aux.innerHTML="";
+                }
+            }
+            var selector = document.getElementById("selector");
+            if (e.target.parentNode == selector) {
+                const target = e.target;
+                if (room !== target.id) {
+                    sessionStorage.setItem("room", JSON.stringify([target.id, target.innerText]));
+                    window.location.reload();
+                }
+            }
+        }
+        window.oncontextmenu = function (e) {
+            e.preventDefault();
+        }
+        let cursor = [0, 0];
+        document.body.onmousemove = function (e) {
+            cursor[0] = e.clientY;
+            cursor[1] = e.clientX;
+        }
+        document.getElementById("form").onsubmit = function (e) {
+            e.preventDefault();
+            const request = new XMLHttpRequest();
+            request.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    if (this.responseText !== "") {
+                        const response = JSON.parse(this.responseText);
+                        if (response["error"] !== "none") {
+                            popup(response["error"]);
+                        }
+                    }
+                }
+            }
+            request.open("POST", "request/new.php");
+            request.setRequestHeader("Content-type", "application/json");
+            request.send(JSON.stringify({
+                "Id": JSON.parse(localStorage.getItem("user"))[1],
+                "password": JSON.parse(localStorage.getItem("user"))[2],
+                "value": document.getElementById("inp").value,
+                "lang": JSON.parse(sessionStorage.getItem("settings"))["lang"],
+                "room": room
+            }));
+            document.getElementById("inp").value = null;
+        }
+        if (localStorage.getItem("user") !== "") {
+            if (JSON.parse(localStorage.getItem("user"))[3]) {
+                var moderator = true;
+            }   else {
+                var moderator = false;
+            }
+        }
+    }
+    </script>
+    <div id="selector">
+
+    </div>
+</body>
+</html>
+<style>
+body {
+    background-color: black;
+    color: white;
+    padding-bottom: 6vh;
+}
+@media screen and (min-width: 800px){
+    #chat {
+        margin-left: 15rem;
+    }
+    #selector {
+        display: block;
+        position: fixed;
+        width: 14rem;
+        height: 100vh;
+        background-color: #030306;
+        top: 0;
+        left: 0;
+        border-right: #111 1px solid;
+        padding: 1rem;
+        box-sizing: border-box;
+    }
+}
+#chat div {
+    padding-left: 3.3rem;
+}
+#chat div:hover {
+    background-color: #111;
+}
+#chat h1 {
+    display: inline;
+    font-size: 1.2rem;
+    font-family: serif;
+}
+#chat h2 {
+    display: inline;
+    font-size: 0.9rem;
+    font-family: monospace;
+    color: #bbb;
+    margin-left: 0.3rem;
+}
+#chat h3 {
+    font-size: 1rem;
+    font-family: arial;
+    display: block;
+    max-width: 100vw;
+    overflow-wrap: break-word;
+    margin-left: 0.9rem;
+    margin-top: 0.5rem;
+}
+#chat img:not(.avatar) {
+    display: block;
+    max-width: 50vw;
+    max-height: 80vh;
+    margin-left: 1rem;
+    padding: 1rem;
+}
+.avatar {
+    display: inline;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 15px;
+    margin: 0.4rem 0 0 0;
+    position: absolute;
+}
+#chat a {
+    font-size: 1rem;
+    font-family: arial;
+    display: block;
+    max-width: 100vw;
+    overflow-wrap: break-word;
+    padding: 0.3rem 1rem 0.3rem 1rem;
+    margin-left: 0.3rem;
+}
+form {
+    z-index: 1;
+    position: fixed;
+    bottom: 2vh;
+    display: block;
+    margin: auto;
+    left: 0;
+    right: 0;
+    width: max-content;
+}
+#Userprofile {
+    position: fixed;
+    width: 4rem;
+    height: 4rem;
+    border: 2px solid gray;
+    border-radius: 100%;
+    top: 1vh;
+    right: 1vw;
+    background-size: 100% 100%;
+}
+#inp {
+    width: calc(95vw - 5rem);
+    background-color: #111;
+    padding: 0.5rem;
+    border-radius: 5px;
+    border: #fff solid 1.5px;
+    outline: none;
+    box-sizing: border-box;
+    margin: 0;
+    font-size: 0.9rem;
+    font-family: monospace;
+    color: #fff;
+}
+#send {
+    width: 5vw;
+    min-width: fit-content;
+    font-size: 1rem;
+    background-color: #111;
+    margin: 0;
+    height: 35px;
+    font-family: monospace;
+    border-radius: 5px;
+    border: 1.5px solid white;
+}
+#aux {
+    position: fixed;
+    background-color: #000;
+    padding: 1rem;
+    border: #fff 2px solid;
+    border-radius: 1rem;
+}
+h4 {
+    font-size: 1rem;
+    font-family: serif;
+}
+h4:hover {
+    color: red;
+}
+h5 {
+    font-size: 1rem;
+    font-family: serif;
+}
+#popup {
+    position: fixed;
+    margin: auto;
+    left: 0;
+    right: 0;
+    top: 25vh;
+    z-index: 2;
+    width: max-content;
+    border: #444 2px solid;
+    padding: 2rem;
+    background-color: #000;
+}
+#popup h1 {
+    font-size: 2rem;
+}
+#popup button {
+    font-size: 1.5rem;
+    background-color: transparent;
+    color: #fff;
+    border: none;
+    float: right;
+    margin-right: 3rem;
+    font-family: sans-serif;
+}
+#selector h1 {
+    font-size: 1rem;
+    font-family: arial;
+}
+</style>

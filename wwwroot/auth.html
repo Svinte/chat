@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New User</title>
+    <link rel="shortcut icon" href="https://betonikasa.netlify.app/gallery/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <form autocomplete="off" id="l">
+        <h1>Log in</h1>
+        <input type="text" placeholder="Username" id="Lname" require minlength="4" maxlength="20">
+        <input type="text" placeholder="Password" id="Lpassword" require minlength="4" maxlength="20">
+        <button type="submit">Kirjaudu</button>
+    </form>
+    <form autocomplete="off" id="s">
+        <h1>Sing in</h1>
+        <input type="text" placeholder="Username" id="Sname" require minlength="4" maxlength="20">
+        <input type="text" placeholder="Password" id="Spassword" require minlength="4" maxlength="20">
+        <input type="text" placeholder="Password again" id="Spassword2" require minlength="4" maxlength="20">
+        <input type="email" id="Smail" placeholder="Email">
+        <button type="submit">Luo käyttäjä</button>
+    </form>
+</body>
+<script async>
+function popup(text) {
+    const popup = document.createElement("div");
+    popup.id = "popup";
+    document.body.appendChild(popup);
+    const h1 = document.createElement("h1");
+    h1.innerText = text;
+    popup.appendChild(h1);
+    const ok = document.createElement("button");
+    ok.innerText = "ok";
+    popup.appendChild(ok);
+    ok.onclick = function okClick() {
+        document.body.removeChild(popup);
+        ok.removeEventListener("click", okClick);
+    }
+}
+const Lname = document.getElementById("Lname"),
+    Lpassword = document.getElementById("Lpassword"),
+    Sname = document.getElementById("Sname"),
+    Spassword = document.getElementById("Spassword"),
+    Spassword2 = document.getElementById("Spassword2"),
+    Smail = document.getElementById("Smail")
+document.getElementById("l").onsubmit = function (e) {
+    e.preventDefault();
+    if (Lpassword.value == "" || Lname.value == "") {
+        popup("Please enter all values");
+    }   else {
+        const request = new XMLHttpRequest();
+        request.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                const response = JSON.parse(this.responseText);
+                if (response["error"] == "none") {
+                    localStorage.setItem("user", JSON.stringify([
+                    response["response"]["name"],
+                    response["response"]["id"],
+                    response["response"]["password"],
+                    response["response"]["role"]
+                ]));
+                localStorage.setItem("profile", response["response"]["profile"]);
+                document.location.href="/";
+                }   else {
+                    popup(response["error"]);
+                }
+            }
+        }
+        request.open("POST", "request/login.php");
+        request.setRequestHeader("Content-type", "application/json");
+        request.send(JSON.stringify({
+            "name": Lname.value,
+            "password": Lpassword.value,
+            "lang": navigator.language
+        }));
+    }
+}
+document.getElementById("s").onsubmit = function (e) {
+    e.preventDefault();
+    if (Sname.value == "" || Spassword.value == "" || Spassword2.value == "" || Smail.value == "") {
+        popup("Please enter all values");
+    }   else {
+        const request = new XMLHttpRequest();
+        request.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(this.responseText);
+                const response = JSON.parse(this.responseText);
+                if (response["error"] == "none") {
+                    localStorage.setItem("user", JSON.stringify([
+                    response["response"]["name"],
+                    response["response"]["id"],
+                    response["response"]["password"],
+                    response["response"]["role"]
+                ]));
+                localStorage.setItem("profile", response["response"]["profile"]);
+                document.location.href="/";
+                }   else {
+                    popup(response["error"]);
+                }
+            }
+        }
+        request.open("POST", "request/singin.php");
+        request.setRequestHeader("Content-type", "application/json");
+        request.send(JSON.stringify({
+            "name": Sname.value,
+            "password": Spassword.value,
+            "lang": navigator.language,
+            "mail": Smail.value
+        }));
+    }
+}
+</script>
+</html>
+<style>
+body {
+    background-color: black;
+}
+form {
+    width: min-content;
+    display: block;
+    margin: 15vh auto auto auto;
+    font-family: arial;
+}
+input {
+    display: block;
+    margin: 0.7rem;
+    background-color: black;
+    border: 1px solid white;
+    color: white;
+    outline: none;
+    max-width: 90vw;
+    width: 300px;
+    box-sizing:border-box;
+    padding: 0.4rem;
+}
+input:focus-visible {
+    border: 2px solid white;
+}
+h1 {
+    text-align: center;
+    font-size: 1.5rem;
+    color: white;
+}
+button {
+    background-color: transparent;
+    border: none;
+    color: white;
+    font-size: 0.8rem;
+    float: right;
+}
+button:hover {
+    color: blue;
+}
+</style>

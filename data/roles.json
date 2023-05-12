@@ -1,0 +1,10 @@
+{
+    "Main": {
+        "color": "#00f",
+        "law": {"Moderate": "false"}
+    },
+    "Admin": {
+        "color": "purple",
+        "law": {"Moderate": "true", "run": "false"}
+    }
+}

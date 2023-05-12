@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <link rel="shortcut icon" href="https://betonikasa.netlify.app/gallery/favicon.ico" type="image/x-icon">
+    <meta name="description" content="Edit your user settingssss">
+</head>
+<body>
+    <button id="back" onclick="window.location.href='/';">Back to chat</button>
+    <hr>
+    <h1>Profile settings</h1>
+    <hr>
+    <h2>Change username</h2>
+    <input type="text" placeholder="New name">
+    <button class="inp">change</button>
+    <hr>
+    <h1>Client settings</h1>
+    <hr>
+    <button id="logOut">Log out</button>
+</body>
+<script>
+if (localStorage.getItem("user") == null) {
+    document.location.href="auth.html";
+}
+document.getElementById("logOut").onclick = function () {
+    if (confirm("Do you really want log out? After logging out you need to sing in to chat again.")) {
+        localStorage.removeItem("profile");
+        localStorage.removeItem("user");
+        window.location.href="/auth.html";
+    }
+}
+</script>
+<style>
+body {
+    background-color: black;
+    color: white;
+    padding-bottom: 6vh;
+    margin: 0;
+}
+hr {
+    width: 99%;
+    color: #fff;
+}
+h1 {
+    text-align: center;
+    font-size: 1.7rem;
+}
+h2 {
+    font-size: 1.3rem;
+    margin-left: 3rem;
+    margin-bottom: 0.5rem;
+}
+button {
+    width: 5vw;
+    min-width: fit-content;
+    font-size: 1rem;
+    color: #fff;
+    background-color: #111;
+    margin: 0;
+    height: 35px;
+    font-family: monospace;
+    border-radius: 5px;
+    border: 1.5px solid white;
+    display: block;
+    margin: 1rem;
+}
+.inp {
+    display: inline !important;
+    margin: 0;
+}
+input {
+    margin: 0 0 0 3rem;
+}
+</style>
+</html>
