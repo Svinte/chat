@@ -10,13 +10,16 @@
 </head>
 <body>
     <form autocomplete="off" id="form">
+        <button id="call">&#128222;</button>
         <input type='text' name='value' placeholder='message' id="inp">
         <button type='submit' id="send">Send</button>
     </form>
-    <div id="chat">
+    <div id="banner">
+        <h1 id="roomName">Undefendified room</h1>
+        <button id="Userprofile"></button>
     </div>
-    <button id="Userprofile"></button>
-    <div id="profile"></div>
+    <div id="chat"></div>
+    <div id="selector"></div>
     <script async>
     if (localStorage.getItem("user") !== null) {
         document.getElementById("inp").focus();
@@ -34,8 +37,10 @@
     var role;
     if (sessionStorage.getItem("room") == null) {
         document.title = "Chat | Home";
+        document.getElementById("roomName").innerText="Home";
     }   else {
         document.title = "Chat | "+JSON.parse(sessionStorage.getItem("room"))[1];
+        document.getElementById("roomName").innerText=JSON.parse(sessionStorage.getItem("room"))[1];
     }
     settings();
     function popup(text) {
@@ -83,7 +88,7 @@
         request.send(JSON.stringify({
             "id": JSON.parse(localStorage.getItem("user"))[1],
             "password": JSON.parse(localStorage.getItem("user"))[2],
-            "lang": navigator.language || navigator.userLanguage,
+            "lang":  navigator.language,
             "type": "get",
             "room": room
         }))
@@ -307,11 +312,11 @@
                 var moderator = false;
             }
         }
+        document.getElementById("call").onclick = function() {
+            window.location.href="call.html";
+        }
     }
     </script>
-    <div id="selector">
-
-    </div>
 </body>
 </html>
 <style>
@@ -319,10 +324,14 @@ body {
     background-color: black;
     color: white;
     padding-bottom: 6vh;
+    margin: 0;
+}
+#chat {
+    padding-top: 1rem;
 }
 @media screen and (min-width: 800px){
     #chat {
-        margin-left: 15rem;
+        margin-left: 14rem;
     }
     #selector {
         display: block;
@@ -337,8 +346,17 @@ body {
         box-sizing: border-box;
     }
 }
+#banner {
+    background-color: #000;
+    height: calc(4rem + 1.4rem);
+    width: 100vw;
+    background-color: #070709;
+    border-bottom: #151515 1px solid;
+    padding: 1rem;
+    box-sizing: border-box;
+}
 #chat div {
-    padding-left: 3.3rem;
+    padding-left: 4.3rem;
 }
 #chat div:hover {
     background-color: #111;
@@ -376,7 +394,7 @@ body {
     width: 3rem;
     height: 3rem;
     border-radius: 15px;
-    margin: 0.4rem 0 0 0;
+    margin: 0.4rem 0 0 1rem;
     position: absolute;
 }
 #chat a {
@@ -399,14 +417,33 @@ form {
     width: max-content;
 }
 #Userprofile {
-    position: fixed;
+    float: right;
     width: 4rem;
     height: 4rem;
     border: 2px solid gray;
     border-radius: 100%;
-    top: 1vh;
-    right: 1vw;
     background-size: 100% 100%;
+    display: inline;
+}
+#roomName {
+    text-align: center;
+    font-size: 1.7rem;
+    display: inline-block;
+    width: calc(100vw - 6rem);
+    font-family: Courier;
+    font-style: italic;
+}
+#call {
+    width: 3vw;
+    min-width: fit-content;
+    font-size: 0.8rem;
+    background-color: #111;
+    margin: 0;
+    height: 35px;
+    font-family: monospace;
+    border-radius: 5px;
+    border: 1.5px solid white;
+    color: white;
 }
 #inp {
     width: calc(95vw - 5rem);
@@ -431,6 +468,7 @@ form {
     font-family: monospace;
     border-radius: 5px;
     border: 1.5px solid white;
+    color: white;
 }
 #aux {
     position: fixed;

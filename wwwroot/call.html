@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Call</title>
+    <link rel="shortcut icon" href="https://betonikasa.netlify.app/gallery/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <video id="video"></video>
+</body>
+<script>
+    function Main() {
+        navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: false
+        })
+        .then((stream) => {
+            const request = new XMLHttpRequest();
+            request.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    if (this.responseText !== "") {
+                        console.log(this.responseText);
+                        const response = JSON.parse(this.responseText);
+                    }
+                }
+            }
+            //luo uusi kuvaelementti ja aseta sen srcObject = stream
+            console.log(stream);
+            request.open("POST", "request/call.php");
+            request.setRequestHeader("Content-type", "application/json");
+            request.send(JSON.stringify({
+                "value": stream,
+                "type": "video",
+                "id": JSON.parse(localStorage.getItem("user"))[1],
+                "password": JSON.parse(localStorage.getItem("user"))[2]
+            }));
+        })
+        
+    }
+    function update() {
+        const request = new XMLHttpRequest();
+        request.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                if (this.responseText !== "") {
+                    const response = JSON.parse(this.responseText);
+
+                }
+            }
+        }
+        request.open("POST", "request/call.php");
+        request.setRequestHeader("Content-type", "application/json");
+        request.send(JSON.parse({
+            "video": ""
+        }));
+    }
+    Main();
+</script>
+</html>
