@@ -4,7 +4,7 @@ function LogIn($Id, $Password) {
         if (isset($Id) && isset($Password)) {
             $database = file_get_contents("./../../data/users/$Id.json");
             $database = json_decode($database);
-            if ($database->password == $Password) {
+            if ($database->password === $Password) {
                 return true;
             }   else {
                 return false;
