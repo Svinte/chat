@@ -9,28 +9,32 @@
     <meta name="description" content="Chat main page">
 </head>
 <body>
-    <form autocomplete="off" id="form">
+    <div id="formDiv">
         <button id="call">&#128222;</button>
-        <input type='text' name='value' placeholder='message' id="inp">
-        <button type='submit' id="send">Send</button>
-    </form>
+        <form autocomplete="off" id="form">
+            <input type='text' name='value' placeholder='message' id="inp">
+            <button type='submit' id="send">Send</button>
+        </form>
+    </div>
     <div id="banner">
         <h1 id="roomName">Undefendified room</h1>
         <button id="Userprofile"></button>
     </div>
     <div id="chat"></div>
-    <div id="selector"></div>
+    <div id="selector"><button id="add">+</button><br></div>
     <script async>
-    if (localStorage.getItem("user") !== null) {
-        document.getElementById("inp").focus();
-        window.scrollTo(0, document.body.scrollHeight);
-    } else {
+    if (localStorage.getItem("user") == null) {
         window.location.href="auth.html";
     }
     if (sessionStorage.getItem("room") == null) {
         var room = "*";    
     }   else {
         var room = JSON.parse(sessionStorage.getItem("room"))[0];
+    }
+    let cursor = [0, 0];
+    window.onmousemove = function (e) {
+        cursor[0] = e.clientY;
+        cursor[1] = e.clientX;
     }
     var date = new Date;
     var lastUser = ["",date];
@@ -43,22 +47,75 @@
         document.getElementById("roomName").innerText=JSON.parse(sessionStorage.getItem("room"))[1];
     }
     settings();
-    function popup(text) {
+    function popup(text, error = true, target = null) {
+        if (document.getElementById("popup")) {
+            document.body.removeChild(document.getElementById("popup"));
+        }
         const popup = document.createElement("div");
         popup.id = "popup";
         document.body.appendChild(popup);
-        const h1 = document.createElement("h1");
-        h1.innerText = text;
-        popup.appendChild(h1);
-        const ok = document.createElement("button");
-        ok.innerText = "Ok";
-        popup.appendChild(ok);
-        ok.onclick = function okClick() {
-            document.body.removeChild(popup);
-            ok.removeEventListener("click", okClick);
+        if (error) {
+            const h1 = document.createElement("h1");
+            h1.innerText = text;
+            popup.appendChild(h1);
+            const ok = document.createElement("button");
+            ok.innerText = "Ok";
+            popup.appendChild(ok);
+            ok.onclick = function okClick() {
+                document.body.removeChild(popup);
+                ok.removeEventListener("click", okClick);
+            }
+        }   else {
+            popup.style.margin="0";
+            text.forEach(element => {
+                const h4 = document.createElement("h4");
+                h4.innerText = element[0];
+                h4.className=target;
+                h4.onclick = element[1];
+                popup.appendChild(h4);
+            });
+            var top = 0;
+            var left = 0;
+            if (cursor[0]+popup.clientHeight > window.innerHeight) {
+                top = popup.clientHeight;
+            }
+            if (cursor[1]+popup.clientWidth > window.innerWidth) {
+                left = popup.clientWidth;
+            }
+            popup.style.top = cursor[0]-top+"px";
+            popup.style.left = cursor[1]-left+"px";
         }
     }
-    function settings(){
+    function deleteMs() {
+        const target = this;
+        const request = new XMLHttpRequest();
+        request.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                if (this.responseText !== "") {
+                    const response = JSON.parse(this.responseText);
+                    if (response["error"] !== "none") {
+                        popup(response["error"]);
+                    }
+                }
+            }
+        }
+        request.open("POST", "request/delete.php");
+        request.setRequestHeader("Content-type", "application/json");
+        request.send(JSON.stringify({
+            "Id": JSON.parse(localStorage.getItem("user"))[1],
+            "password": JSON.parse(localStorage.getItem("user"))[2],
+            "index": JSON.parse(target.className)[0],
+            "room": room,
+            "lang": JSON.parse(sessionStorage.getItem("settings"))["lang"]
+        }))
+    }
+    function createRoom() {
+        window.location.href="create.html";
+    }
+    function joinRoom() {
+        window.location.href="join.html";
+    }
+    function settings() {
         function rooms(newRooms) {
             var selector = document.getElementById("selector");
             newRooms.forEach(element => {
@@ -76,6 +133,7 @@
                 if (JSON.parse(this.responseText)["error"] == "none") {
                     sessionStorage.setItem("settings", JSON.stringify(JSON.parse(this.responseText)["response"]));
                     sessionStorage.setItem("delIndex", JSON.stringify(JSON.parse(this.responseText)["delIndex"]));
+                    localStorage.setItem("profile", JSON.stringify(JSON.parse(this.responseText)["avatar"]));
                     rooms(JSON.parse(this.responseText)["rooms"]);
                     main();
                 }   else {
@@ -171,7 +229,9 @@
                                 lastUser = [element["Id"], element["Date"]];
                                 index++;
                             });
-                            setTimeout(update, settings["update"]);
+                            if (room !== "*") {
+                                setTimeout(update, settings["update"]);
+                            }
                             if (scroll == true) {
                                 window.scrollTo(0, document.body.scrollHeight);
                             }
@@ -193,117 +253,48 @@
             }));
         }
         update();
-        const aux = document.createElement("div");
-        aux.id="aux";
         window.onauxclick = function(e) {
-            aux.innerHTML="";
             if (e.target.parentNode.parentNode == chat || e.target.parentNode == chat) {
                 if (e.target.parentNode == chat) {
                     var target = e.target;
                 }   else {
                     var target = e.target.parentNode;
                 }
-                const aux_text = document.createElement("h4");
-                aux.appendChild(aux_text);
-                const deleteMs = document.createElement("h4");
-                deleteMs.innerText="Delete";
-                aux.appendChild(deleteMs);
-                const e_Index = JSON.parse(target.className)[0];
-                const e_Id = JSON.parse(target.className)[1];
-                document.body.appendChild(aux);
-                var top = 0;
-                var left = 0;
-                aux_text.innerText="Report "+e_Id;
-                if (cursor[0]+aux.clientHeight > window.innerHeight) {
-                    top = aux.clientHeight;
-                }
-                if (cursor[1]+aux.clientWidth > window.innerWidth) {
-                    left = aux.clientWidth;
-                }
-                aux.style.top = cursor[0]-top+"px";
-                aux.style.left = cursor[1]-left+"px";
-                deleteMs.onclick = function () {
-                    const request = new XMLHttpRequest();
-                    request.onreadystatechange = function () {
-                        if (this.readyState == 4 && this.status == 200) {
-                            if (this.responseText !== "") {
-                                console.log(this.responseText);
-                                const response = JSON.parse(this.responseText);
-                                if (response["error"] !== "none") {
-                                    popup(response["error"]);
-                                }
-                            }
-                        }
-                    }
-                    request.open("POST", "request/delete.php");
-                    request.setRequestHeader("Content-type", "application/json");
-                    request.send(JSON.stringify({
-                        "Id": JSON.parse(localStorage.getItem("user"))[1],
-                        "password": JSON.parse(localStorage.getItem("user"))[2],
-                        "index": JSON.parse(target.className)[0],
-                        "room": room,
-                        "lang": JSON.parse(sessionStorage.getItem("settings"))["lang"]
-                    }))
-                }
-                if (e_Id == JSON.parse(localStorage.getItem("user"))[0] || moderator) {
-                    deleteMs.style.display="block";
-                }   else {
-                    deleteMs.style.display="none";
-                }
-            }   else {
-                if (document.body.contains(aux)) {
-                    document.body.removeChild(aux);
-                }
-            }
-        }
-        document.onclick = function (e) {
-            if (document.getElementById("aux")) {
-                if (e.target !== aux) {
-                    document.body.removeChild(aux);
-                    document.onclick = function () {};
-                    aux.innerHTML="";
-                }
-            }
-            var selector = document.getElementById("selector");
-            if (e.target.parentNode == selector) {
-                const target = e.target;
-                if (room !== target.id) {
-                    sessionStorage.setItem("room", JSON.stringify([target.id, target.innerText]));
-                    window.location.reload();
+                if (target.className !== "avatar") {
+                    const e_Id = JSON.parse(target.className)[1];
+                    popup([["Delete", deleteMs],["Report "+e_Id]], false, target.className);
                 }
             }
         }
         window.oncontextmenu = function (e) {
             e.preventDefault();
         }
-        let cursor = [0, 0];
-        document.body.onmousemove = function (e) {
-            cursor[0] = e.clientY;
-            cursor[1] = e.clientX;
-        }
         document.getElementById("form").onsubmit = function (e) {
             e.preventDefault();
-            const request = new XMLHttpRequest();
-            request.onreadystatechange = function () {
-                if (this.readyState == 4 && this.status == 200) {
-                    if (this.responseText !== "") {
-                        const response = JSON.parse(this.responseText);
-                        if (response["error"] !== "none") {
-                            popup(response["error"]);
+            if (document.getElementById("inp").value !== "") {
+                const request = new XMLHttpRequest();
+                request.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        if (this.responseText !== "") {
+                            console.log(this.responseText);
+                            const response = JSON.parse(this.responseText);
+                            if (response["error"] !== "none") {
+                                popup(response["error"]);
+                            }
                         }
                     }
                 }
+                request.open("POST", "request/new.php");
+                request.setRequestHeader("Content-type", "application/json");
+                request.send(JSON.stringify({
+                    "Id": JSON.parse(localStorage.getItem("user"))[1],
+                    "password": JSON.parse(localStorage.getItem("user"))[2],
+                    "value": document.getElementById("inp").value,
+                    "lang": JSON.parse(sessionStorage.getItem("settings"))["lang"],
+                    "room": room
+                }));
+                document.getElementById("inp").value = null;
             }
-            request.open("POST", "request/new.php");
-            request.setRequestHeader("Content-type", "application/json");
-            request.send(JSON.stringify({
-                "Id": JSON.parse(localStorage.getItem("user"))[1],
-                "password": JSON.parse(localStorage.getItem("user"))[2],
-                "value": document.getElementById("inp").value,
-                "lang": JSON.parse(sessionStorage.getItem("settings"))["lang"],
-                "room": room
-            }));
-            document.getElementById("inp").value = null;
         }
         if (localStorage.getItem("user") !== "") {
             if (JSON.parse(localStorage.getItem("user"))[3]) {
@@ -312,9 +303,35 @@
                 var moderator = false;
             }
         }
-        document.getElementById("call").onclick = function() {
-            window.location.href="call.html";
-        }
+        window.onclick = function (e) {
+            const target = e.target;
+            if (target == document.getElementById("call")) {
+                window.location.href="call.html";
+            }   else if (target == document.getElementById("add")) {
+                popup([["Join room",joinRoom],["Create room",createRoom]], false);
+            }   else {
+                if (document.getElementById("addRoom")) {
+                    const addRoom = document.getElementById("addRoom");
+                    if (target.parentNode !== addRoom && target !== addRoom) {
+                        document.body.removeChild(addRoom);
+                    }
+                }
+            }
+            var selector = document.getElementById("selector");
+            if (target.parentNode == selector && target.nodeName == "H1") {
+                if (room !== target.id) {
+                    sessionStorage.setItem("room", JSON.stringify([target.id, target.innerText]));
+                    window.location.reload();
+                }
+            }
+            if (target !== document.getElementById("popup") && target !== document.getElementById("add")) {
+                if (document.getElementById("popup")) {
+                    document.body.removeChild(document.getElementById("popup"));
+                }
+            }
+        }   
+        document.getElementById("inp").focus();
+        window.scrollTo(0, document.body.scrollHeight);
     }
     </script>
 </body>
@@ -326,25 +343,25 @@ body {
     padding-bottom: 6vh;
     margin: 0;
 }
-#chat {
-    padding-top: 1rem;
+#selector {
+    display: block;
+    position: fixed;
+    width: 14rem;
+    height: 100vh;
+    background-color: #030306;
+    top: 0;
+    left: 0;
+    border-right: #111 1px solid;
+    padding: 1rem;
+    box-sizing: border-box;
+    font-family: courier;
 }
-@media screen and (min-width: 800px){
-    #chat {
-        margin-left: 14rem;
-    }
-    #selector {
-        display: block;
-        position: fixed;
-        width: 14rem;
-        height: 100vh;
-        background-color: #030306;
-        top: 0;
-        left: 0;
-        border-right: #111 1px solid;
-        padding: 1rem;
-        box-sizing: border-box;
-    }
+#selector button{
+    float: right;
+    background-color: transparent;
+    border: 1px solid white;
+    border-radius: 5px;
+    color: white;
 }
 #banner {
     background-color: #000;
@@ -355,8 +372,12 @@ body {
     padding: 1rem;
     box-sizing: border-box;
 }
+#chat {
+    padding-top: 1rem;
+    margin-left: 14rem;
+}
 #chat div {
-    padding-left: 4.3rem;
+    padding: 0.1rem 0 0.1rem 4.3rem;
 }
 #chat div:hover {
     background-color: #111;
@@ -365,6 +386,7 @@ body {
     display: inline;
     font-size: 1.2rem;
     font-family: serif;
+    user-select: none;
 }
 #chat h2 {
     display: inline;
@@ -372,6 +394,7 @@ body {
     font-family: monospace;
     color: #bbb;
     margin-left: 0.3rem;
+    user-select: none;
 }
 #chat h3 {
     font-size: 1rem;
@@ -396,6 +419,7 @@ body {
     border-radius: 15px;
     margin: 0.4rem 0 0 1rem;
     position: absolute;
+    user-select: none;
 }
 #chat a {
     font-size: 1rem;
@@ -406,7 +430,7 @@ body {
     padding: 0.3rem 1rem 0.3rem 1rem;
     margin-left: 0.3rem;
 }
-form {
+#formDiv {
     z-index: 1;
     position: fixed;
     bottom: 2vh;
@@ -416,11 +440,14 @@ form {
     right: 0;
     width: max-content;
 }
+form {
+    display: inline;
+}
 #Userprofile {
     float: right;
     width: 4rem;
     height: 4rem;
-    border: 2px solid gray;
+    border: 1px solid white;
     border-radius: 100%;
     background-size: 100% 100%;
     display: inline;
@@ -470,19 +497,13 @@ form {
     border: 1.5px solid white;
     color: white;
 }
-#aux {
-    position: fixed;
-    background-color: #000;
-    padding: 1rem;
-    border: #fff 2px solid;
-    border-radius: 1rem;
-}
 h4 {
     font-size: 1rem;
     font-family: serif;
+    user-select: none;
 }
 h4:hover {
-    color: red;
+    text-decoration: underline 1px;
 }
 h5 {
     font-size: 1rem;
@@ -490,15 +511,18 @@ h5 {
 }
 #popup {
     position: fixed;
-    margin: auto;
-    left: 0;
-    right: 0;
     top: 25vh;
     z-index: 2;
     width: max-content;
     border: #444 2px solid;
     padding: 2rem;
     background-color: #000;
+    border-radius: 1rem;
+    left: 0;
+    right: 0;
+    margin: auto;
+    display: block;
+    max-width: 90vw;
 }
 #popup h1 {
     font-size: 2rem;
@@ -514,6 +538,17 @@ h5 {
 }
 #selector h1 {
     font-size: 1rem;
-    font-family: arial;
+}
+#addRoom {
+    width: 20vw;
+    min-width: 200px;
+    padding: 2rem;
+    position: fixed;
+    background-color: #222;
+    border: 1px solid #444;
+    border-radius: 7px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
 }
 </style>

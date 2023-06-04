@@ -1,18 +1,23 @@
 <?php
     function roleOfUser($userId, $room = false, $roomId = false) {
-        $users = file_get_contents("./../../data/users.json");
-        $users = json_decode($users);
         if (isset($userId)) {
-            if ($room) {
-                if (isset($users->$userId->rooms->$roomId)) {
-                    return $users->$userId->rooms->$roomId;
+            if (file_exists("./../../data/users/$userId.json")) {
+                $user = file_get_contents("./../../data/users/$userId.json");
+                $user = json_decode($user);
+                if ($room) {
+                    if (isset($user->rooms->$roomId)) {
+                        return $user->rooms->$roomId;
+                    }   else {
+                        return "Main";
+                    }
                 }   else {
-                    return "Main";
+                    return $user->role;
                 }
             }   else {
-                return $users->$userId->role;
+                return "Main";
             }
+        }   else {
+            return "Main";
         }
-        return "Main";
     }
 ?>

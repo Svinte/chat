@@ -4,14 +4,14 @@ $post = json_decode($post);
 $id = $post->id;
 $password = $post->password;
 $type = $post->type;
-$room = $post->room;
+$room = strtolower($post->room);
 include_once("./../../tools/lang/get.php");
 $language = getLang($post->lang, true);
 $lang = getLang($post->lang);
 if (isset($post->room)) {
     include_once("./../../tools/users/LogIn.php");
     if (LogIn($id, $password)) {
-        $database = file_get_contents("./../../data/settings.json");
+        $database = file_get_contents("./../../data/users/$id.json");
         $database = json_decode($database);
         if ($type == "get") {
             if ($room == "*") {
@@ -24,48 +24,56 @@ if (isset($post->room)) {
                     $delIndex = count($delIndex);
                 }
             }
-            if (isset($database->$id)) {
-                $database = file_get_contents("./../../data/settings.json");
-                $database = json_decode($database);
-                $data = $database->$id;
-                $roomsId = file_get_contents("./../../data/users.json");
-                $roomsId = json_decode($roomsId);
-                $roomsId = $roomsId->$id->rooms;
-                $roomsJson = file_get_contents("./../../data/rooms.json");
-                $roomsJson = json_decode($roomsJson);
-                $rooms = array();
-                foreach ($roomsId as $key => $value) {
-                    error_log($key);
-                    if (isset($roomsJson->$key)) {
-                        array_push($rooms, array("name" => $roomsJson->$key->name, "id" => $key));
-                    }   else {
-                        //poista profiilista
-                    }
+            $trouble = false;
+            $database = file_get_contents("./../../data/users/$id.json");
+            $database = json_decode($database);
+            $roomsId = $database->rooms;
+            if (isset($database->avatar)) {
+                $avatar = $database->avatar;
+            }   else {
+                $database->avatar = "https://betonikasa.netlify.app/gallery/favicon.ico";
+                $trouble = true;
+            }
+            $roomsJson = file_get_contents("./../../data/rooms.json");
+            $roomsJson = json_decode($roomsJson);
+            $rooms = array();
+            foreach ($roomsId as $key => $value) {
+                if (isset($roomsJson->$key)) {
+                    array_push($rooms, array("name" => $roomsJson->$key->name, "id" => $key));
+                }   else {
+                    unset($database->rooms->$key);
+                    $trouble = true;
                 }
+            }
+            if ($trouble) {
+                file_put_contents("./../../data/users/$id.json", json_encode($database));
+            }
+            if (isset($database->settings)) {
+                $data = $database->settings;
+                echo json_encode(array(
+                    "error" => "none",
+                    "response" => $data,
+                    "delIndex" => $delIndex,
+                    "rooms" => $rooms,
+                    "avatar" => $avatar
+                ));
+            }   else {
+                $data = array(
+                    "update" => 1000,
+                    "verify" => false,
+                    "lang" => $language,
+                    "avatar" => $avatar
+                );
+                $database->settings = $data;
+                $database = json_encode($database);
+                file_put_contents("./../../data/users/$id.json", $database);
                 echo json_encode(array(
                     "error" => "none",
                     "response" => $data,
                     "delIndex" => $delIndex,
                     "rooms" => $rooms
                 ));
-            }   else {
-                $data = array(
-                    "update" => 1000,
-                    "verify" => false,
-                    "lang" => $language
-                );
-                $database->$id = $data;
-                $database = json_encode($database);
-                file_put_contents("./../../data/settings.json", $database);
-                echo json_encode(array(
-                    "error" => "none",
-                    "response" => $data,
-                    "delIndex" => $delIndex
-                ));
             }
-        }   else if ($type == "set") {
-            $value = $post->value;
-            
         }   else {
             echo json_encode(array(
                 "error" => $lang->IrequestType

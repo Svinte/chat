@@ -2,7 +2,7 @@
 function getLang($lang = "en-EN", $mark = false) {
     $database = file_get_contents("./../../data/lang.json");
     $database = json_decode($database);
-    if ($database->$lang === null) {
+    if (!isset($database->$lang)) {
         $lang = "en-EN";
     }
     if ($mark) {

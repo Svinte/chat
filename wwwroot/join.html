@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join room</title>
+    <meta name="description" content="Join public rooms">
+    <link rel="shortcut icon" href="https://betonikasa.netlify.app/gallery/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <div id="sel"></div>
+</body>
+</html>
+<script async>
+    let cursor = [0, 0];
+    window.onmousemove = function (e) {
+        cursor[0] = e.clientY;
+        cursor[1] = e.clientX;
+    }
+    function popup(text, error = true, target = null) {
+        if (document.getElementById("popup")) {
+            document.body.removeChild(document.getElementById("popup"));
+        }
+        const popup = document.createElement("div");
+        popup.id = "popup";
+        document.body.appendChild(popup);
+        if (error) {
+            const h1 = document.createElement("h1");
+            h1.innerText = text;
+            popup.appendChild(h1);
+            const ok = document.createElement("button");
+            ok.innerText = "Ok";
+            popup.appendChild(ok);
+            ok.onclick = function okClick() {
+                document.body.removeChild(popup);
+                ok.removeEventListener("click", okClick);
+            }
+        }   else {
+            popup.style.margin="0";
+            text.forEach(element => {
+                const h4 = document.createElement("h4");
+                h4.innerText = element[0];
+                h4.className=target;
+                h4.onclick = element[1];
+                popup.appendChild(h4);
+            });
+            var top = 0;
+            var left = 0;
+            if (cursor[0]+popup.clientHeight > window.innerHeight) {
+                top = popup.clientHeight;
+            }
+            if (cursor[1]+popup.clientWidth > window.innerWidth) {
+                left = popup.clientWidth;
+            }
+            popup.style.top = cursor[0]-top+"px";
+            popup.style.left = cursor[1]-left+"px";
+        }
+    }
+    function Main() {
+        const request = new XMLHttpRequest();
+        request.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                if (this.responseText !== "") {
+                    const response = JSON.parse(this.responseText);
+                    if (response["error"] == "none") {
+                        response["value"].forEach(element => {
+                            const h1 = document.createElement("h1");
+                            const h2 = document.createElement("h2");
+                            h1.innerText = element["name"];
+                            h2.innerText = element["owner"];
+                            h1.className=JSON.stringify([element["id"],element["owner"]]);
+                            h1.onclick = function (e) {
+                                const className = JSON.parse(e.target.className);
+                                popup([["Join room", function () {
+                                    const className = this.className; 
+                                    document.body.removeChild(document.getElementById("popup"));
+                                    const request = new XMLHttpRequest();
+                                    request.onreadystatechange = function () {
+                                        if (this.readyState == 4 && this.status == 200) {
+                                            const response = JSON.parse(this.responseText);
+                                            if (response["error"] == "none") {
+                                                window.location.href="/";
+                                            }   else {
+                                                popup(response["error"]);
+                                            }
+                                        }
+                                    }
+                                    request.open("POST", "/request/rooms.php");
+                                    request.setRequestHeader("Content-type", "application/json");
+                                    request.send(JSON.stringify({
+                                        "id": JSON.parse(localStorage.getItem("user"))[1],
+                                        "password": JSON.parse(localStorage.getItem("user"))[2],
+                                        "type": "join",
+                                        "value": JSON.parse(className)[0]
+                                    }))
+                                }]], false, h1.className);
+                            }
+                            document.getElementById("sel").appendChild(h1);
+                            document.getElementById("sel").appendChild(h2);
+                        });
+                    }   else {
+                        popup(response["error"]);
+                    }
+                }
+            }
+        }
+        request.open("POST", "/request/rooms.php");
+        request.setRequestHeader("Content-type", "application/json");
+        request.send(JSON.stringify({
+            "id": JSON.parse(localStorage.getItem("user"))[1],
+            "password": JSON.parse(localStorage.getItem("user"))[2],
+            "type": "get",
+            "value": "*"
+        }));
+    }
+    window.onclick = function (e) {
+        const target = e.target;
+        if (document.getElementById("popup")) {
+            if (target.nodeName !== "H1") {
+                const popup = document.getElementById("popup");
+                if (target !== popup && target.parentNode !== popup) {
+                    document.body.removeChild(popup);
+                }
+            }
+        }
+    }
+    Main();
+</script>
+<style>
+    body {
+        background-color: #000;
+        color: #fff;
+    }
+    #sel h1, h2{
+        width: max-content;
+    }
+    #popup {
+        position: fixed;
+        top: 25vh;
+        z-index: 2;
+        width: max-content;
+        border: #444 2px solid;
+        padding: 2rem;
+        background-color: #000;
+        border-radius: 1rem;
+        left: 0;
+        right: 0;
+        margin: auto;
+        display: block;
+        max-width: 90vw;
+    }
+    #popup h1 {
+        font-size: 2rem;
+    }
+    #popup button {
+        font-size: 1.5rem;
+        background-color: transparent;
+        color: #fff;
+        border: none;
+        float: right;
+        margin-right: 3rem;
+        font-family: sans-serif;
+    }
+    h4 {
+        font-size: 1rem;
+        font-family: serif;
+        user-select: none;
+    }
+    h4:hover {
+        text-decoration: underline 1px;
+    }
+</style>

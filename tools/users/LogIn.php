@@ -1,10 +1,10 @@
 <?php
 function LogIn($Id, $Password) {
-    if (isset($Id) && isset($Password)) {
-        $database = file_get_contents("./../../data/users.json");
-        $database = json_decode($database);
-        if (isset($database->$Id)) {
-            if ($database->$Id->password == $Password) {
+    if (file_exists("./../../data/users/$Id.json")) {
+        if (isset($Id) && isset($Password)) {
+            $database = file_get_contents("./../../data/users/$Id.json");
+            $database = json_decode($database);
+            if ($database->password == $Password) {
                 return true;
             }   else {
                 return false;
@@ -12,6 +12,8 @@ function LogIn($Id, $Password) {
         }   else {
             return false;
         }
+    }   else {
+        return false;
     }
 }
 ?>

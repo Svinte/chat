@@ -12,7 +12,7 @@ if (isset($database->name) && isset($database->password) && isset($database->mai
             $database = file_get_contents("./../../data/users.json");
             $database = json_decode($database);
             foreach ($database as $key => $value) {
-                if (strtolower($value->name) == strtolower($name)) {
+                if (strtolower($value) == strtolower($name)) {
                     echo json_encode(array(
                         "error" => $lang->Cname
                     ));

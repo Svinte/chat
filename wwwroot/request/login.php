@@ -9,17 +9,20 @@ if (isset($database->name) && isset($database->password)) {
     $database = file_get_contents("./../../data/users.json");
     $database = json_decode($database);
     foreach ($database as $key => $val) {
-        if ($val->name == $name) {
+        if ($val == $name) {
             $id = $key;
         }
     }
     if (isset($id)) {
+        $database = file_get_contents("./../../data/users/$id.json");
+        $database = json_decode($database);
         include_once("./../../tools/users/LogIn.php");
         if (LogIn($id, $password)) {
             include_once("./../../tools/users/username.php");
             $user = username($id);
-            $role = $database->$id->role;
-            $profile = $database->$id->profile;
+            $role = $database->role;
+            $avatar = $database->avatar;
+            error_log($user);
             echo json_encode(array(
                 "error" => "none",
                 "response" => array(
@@ -27,7 +30,7 @@ if (isset($database->name) && isset($database->password)) {
                     "name" => $name,
                     "password" => $password,
                     "role" => $role,
-                    "profile" => $profile
+                    "avatar" => $avatar
                 )
             ));
         }   else {
@@ -35,7 +38,7 @@ if (isset($database->name) && isset($database->password)) {
                 echo json_encode(array(
                     "error" => $lang->Iuser
                     ));
-            }   elseif ($database->$id->password !== $password) {
+            }   elseif ($database->password !== $password) {
                 echo json_encode(array(
                     "error" => $lang->Ipassword
                 ));

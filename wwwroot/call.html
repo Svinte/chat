@@ -8,10 +8,15 @@
     <link rel="shortcut icon" href="https://betonikasa.netlify.app/gallery/favicon.ico" type="image/x-icon">
 </head>
 <body>
-    <video id="video"></video>
+    <video></video>
+    <canvas></canvas>
+    <img>
 </body>
 <script>
     function Main() {
+        const video = document.querySelector("video");
+        const canvas = document.querySelector("canvas");
+        const img = document.querySelector("img");
         navigator.mediaDevices.getUserMedia({
             video: true,
             audio: false
@@ -27,7 +32,14 @@
                 }
             }
             //luo uusi kuvaelementti ja aseta sen srcObject = stream
-            console.log(stream);
+            video.srcObject=stream;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(video, 0, 0, 200, 200);
+            ctx.fillStyle="red";
+            ctx.fillRect(0, 0, 200, 200);
+            const data = canvas.toDataURL("image/png");
+            img.setAttribute("src", data);
+            //ussus
             request.open("POST", "request/call.php");
             request.setRequestHeader("Content-type", "application/json");
             request.send(JSON.stringify({
@@ -37,7 +49,9 @@
                 "password": JSON.parse(localStorage.getItem("user"))[2]
             }));
         })
-        
+        video.oncanplay = function () {
+            //https://developer.mozilla.org/en-US/docs/Web/API/Media_Capture_and_Streams_API/Taking_still_photos
+        }
     }
     function update() {
         const request = new XMLHttpRequest();

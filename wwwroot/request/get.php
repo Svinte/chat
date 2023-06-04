@@ -35,7 +35,7 @@ if (file_get_contents("php://input") !== "") {
                     while ($loop < $lenght) {
                         $item = $messages[$loop];
                         $item->Profile=avatar($item->Id);
-                        $item->Color=color($item->Id);
+                        $item->Color=color($item->Id, $room);
                         $item->Id=username($item->Id);
                         array_push($data, $item);
                         $loop++;

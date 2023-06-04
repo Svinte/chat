@@ -1,14 +1,19 @@
 <?php
-    function color($id) {
-        include_once("./../../data/get.php");
-        include_once("./../../data/get.php");
-        $users = getData("users", "*");
-        $role = "Main";
-        if (isset($users->$id)) {
-            $role = $users->$id->role;
+    function color($id, $room = "*") {
+        if (file_exists("./../../data/users/$id.json")) {
+            $user = file_get_contents("./../../data/users/$id.json");
+            $user = json_decode($user);
+            if ($room == "*") {
+                $urole = $user->role;
+            }   else {
+                $urole = $user->rooms->$room;
+            }
+        }   else {
+            $urole = "Main";
         }
-        include_once("./../../data/get.php");
-        $role = getData("roles", $role);
+        $role = file_get_contents("./../../data/roles.json");
+        $role = json_decode($role);
+        $role = $role->$urole;
         $color = $role->color;
         return $color;
     };

@@ -5,10 +5,10 @@ function Messsages($id, $password, $room, $lang) {
     if (isset($id) && isset($password) && isset($room)) {
         include_once("./../../tools/users/LogIn.php");
         if (LogIn($id, $password)) {
-            $database = file_get_contents("./../../data/users.json");
+            $database = file_get_contents("./../../data/users/$id.json");
             $database = json_decode($database);
-            if (isset($database->$id)) {
-                $role = $database->$id->rooms->$room;
+            if (isset($database->rooms->$room)) {
+                $role = $database->rooms->$room;
                 $messages = file_get_contents("./../../data/database/$room.json");
                 $messages = json_decode($messages);
                 return array("error" => "none", "messages" => $messages, "role" => $role);

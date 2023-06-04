@@ -31,12 +31,9 @@
                     array_push($database->deleted, $new);
                     $database = json_encode($database);
                     file_put_contents("./../../data/database/$room.json", $database);
-                    include_once("./../../data/get.php");
                 }
-                include_once("./../../tools/users/role.php");
                 $role = roleOfUser($Id, true, $room);
                 $Srole = roleOfUser($Id, true, $room);
-                include_once("./../../tools/roles/law.php");
                 if (law($role, "Moderate")) {
                     delete($room, $index, $database);
                 }   elseif (law($Srole, "Moderate")) {

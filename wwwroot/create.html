@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create room</title>
+    <meta name="description" content="Create new room for your community or friends only">
+    <link rel="shortcut icon" href="https://betonikasa.netlify.app/gallery/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <div id="back">
+        <div id="Public">
+            <h1>Public</h1>
+            <h2>The room is open to everyone. Compliance with the rules is monitored by maintenance. The room is searchable in the search engine. Suitable for community needs.</h2>
+        </div>
+    </div>
+    <div id="Private">
+        <h1>Private</h1>
+        <h2>Access to the room is by invitation only. Messages are private, perfect for a friend or group of friends.</h2>
+    </div>
+</body>
+</html>
+<script async>
+function popup(text, error = true, target = null) {
+    if (document.getElementById("popup")) {
+        document.body.removeChild(document.getElementById("popup"));
+    }
+    const popup = document.createElement("div");
+    popup.id = "popup";
+    document.body.appendChild(popup);
+    if (error) {
+        const h1 = document.createElement("h1");
+        h1.innerText = text;
+        popup.appendChild(h1);
+        const ok = document.createElement("button");
+        ok.innerText = "Ok";
+        popup.appendChild(ok);
+        ok.onclick = function okClick() {
+            document.body.removeChild(popup);
+            ok.removeEventListener("click", okClick);
+        }
+    }   else {
+        text.forEach(element => {
+            const h4 = document.createElement("h4");
+            h4.innerText = element[0];
+            h4.className=target;
+            h4.onclick = element[1];
+            popup.appendChild(h4);
+        });
+        var top = 0;
+        var left = 0;
+        if (cursor[0]+popup.clientHeight > window.innerHeight) {
+            top = popup.clientHeight;
+        }
+        if (cursor[1]+popup.clientWidth > window.innerWidth) {
+            left = popup.clientWidth;
+        }
+        popup.style.top = cursor[0]-top+"px";
+        popup.style.left = cursor[1]-left+"px";
+    }
+}
+function add(isPublic) {
+    const name = prompt("Room name");
+    if (name) {
+        const request = new XMLHttpRequest();
+        request.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                const response = JSON.parse(this.responseText);
+                if (response["error"] == "none") {
+                    window.location.href="/";
+                }   else {
+                    popup(response["error"], true);
+                }
+            }
+        }
+        request.open("POST", "/request/rooms.php");
+        request.setRequestHeader("Content-type", "application/json");
+        request.send(JSON.stringify({
+            type: "create",
+            id: JSON.parse(localStorage.getItem("user"))[1],
+            password: JSON.parse(localStorage.getItem("user"))[2],
+            value: {
+                name: name,
+                public: isPublic
+            }
+        }));
+    }
+}
+document.getElementById("Public").onclick = function () {add(true)};
+document.getElementById("Private").onclick = function () {add(false)};
+</script>
+<style>
+    body {
+        margin: 0;
+        background-color: #000;
+    }
+    #back {
+        background-color: #fff;
+        clip-path: polygon(0 0, 0 100vh, 20vw 100vh, 80vw 0, 100vw 0);
+        height: 100vh;
+        width: 100vw;
+        position: absolute;
+        z-index: -1;
+        top: 0;
+    }
+    #Public {
+        margin-left: 10rem;
+        margin-top: 10rem;
+        width: 40vw;
+        color: #000;
+    }
+    div:not(#back, #popup):hover {
+        text-decoration: underline 2px;
+    }
+    #Private {
+        margin-left: 50vw;
+        margin-top: 60vh;
+        width: 40vw;
+        color: #fff;
+    }
+    #popup {
+        position: fixed;
+        top: 25vh;
+        z-index: 2;
+        width: max-content;
+        border: #444 2px solid;
+        padding: 2rem;
+        background-color: #000;
+        border-radius: 1rem;
+        color: white;
+        left: 0;
+        right: 0;
+        margin: auto;
+        display: block;
+        max-width: 90vw;
+    }
+    #popup h1 {
+        font-size: 2rem;
+    }
+    #popup button {
+        font-size: 1.5rem;
+        background-color: transparent;
+        color: #fff;
+        border: none;
+        float: right;
+        margin-right: 3rem;
+        font-family: sans-serif;
+    }
+</style>

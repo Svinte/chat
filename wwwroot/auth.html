@@ -61,7 +61,7 @@ document.getElementById("l").onsubmit = function (e) {
                     response["response"]["password"],
                     response["response"]["role"]
                 ]));
-                localStorage.setItem("profile", response["response"]["profile"]);
+                localStorage.setItem("profile", response["response"]["avatar"]);
                 document.location.href="/";
                 }   else {
                     popup(response["error"]);
