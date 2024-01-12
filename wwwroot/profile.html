@@ -22,9 +22,11 @@
     <button id="logOut">Log out</button>
 </body>
 <script>
+//if not logged in
 if (localStorage.getItem("user") == null) {
     document.location.href="auth.html";
 }
+//logout
 document.getElementById("logOut").onclick = function () {
     if (confirm("Do you really want log out? After logging out you need to sing in to chat again.")) {
         localStorage.removeItem("profile");
