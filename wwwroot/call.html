@@ -13,6 +13,7 @@
     <img>
 </body>
 <script>
+    //run one time
     function Main() {
         const video = document.querySelector("video");
         const canvas = document.querySelector("canvas");
@@ -53,6 +54,7 @@
             //https://developer.mozilla.org/en-US/docs/Web/API/Media_Capture_and_Streams_API/Taking_still_photos
         }
     }
+    //run while using
     function update() {
         const request = new XMLHttpRequest();
         request.onreadystatechange = function () {
