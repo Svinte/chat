@@ -25,11 +25,13 @@
     <div id="selector"><button id="add">+</button><br></div>
 </body>
 <script>
+//cursor
 let cursor = [0, 0];
 window.onmousemove = function (e) {
     cursor[0] = e.clientY;
     cursor[1] = e.clientX;
 }
+//popup
 function popup(text, error = true, target = null) {
     if (document.getElementById("popup")) {
         document.body.removeChild(document.getElementById("popup"));
