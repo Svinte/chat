@@ -5,3 +5,6 @@ Web chat is opensource online web message application that's made to be easy to 
 **What needed?**
 
 Web chat runs on PHP server and can be used in every javascript supporting browser.
+
+**Before setup**
+Please create needed forders in database
